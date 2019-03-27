@@ -1,7 +1,7 @@
 const tagsView = {
     state: {
         visitedViews: [],
-        cachedViews: []
+        cachedViews: ['ActualMonitor']
     },
     mutations: {
         ADD_VISITED_VIEWS: (state, view) => {

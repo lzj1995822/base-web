@@ -48,6 +48,8 @@ service.interceptors.response.use(
             // 请求失败则要弹提示框
             Message.error(response.data.msg);
             return Promise.reject(response.data.msg);
+        } else {
+            return response.data
         }
     },
     error => {
