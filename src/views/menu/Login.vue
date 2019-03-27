@@ -63,16 +63,21 @@ export default {
         },
         handleLogin () {
             this.$http('POST', `/identity/principal/login`, this.loginForm).then(data => {
-                sessionStorage.setItem('token', data);
+                let token = data.split("$")[0];
+                sessionStorage.setItem('token', token);
                 sessionStorage.setItem('user', this.loginForm.code);
-            }).then(() => {
-                this.$http('POST', `/identity/sysRoutes/list`, false).then(data => {
+                return data.split("$")[1];
+            }).then((userId) => {
+                this.$http('GET',`/identity/principal/${userId}id`,false).then(data => {
+                    sessionStorage.setItem('userInfo',JSON.stringify(data));
+                });
+                this.$http('GET', `/identity/roleMenu/menu`, false).then(data => {
                     sessionStorage.setItem("menu",JSON.stringify(data));
                     this.$store.commit("getMenu",data);
                     DynamicRoutes.transfer(data);
                     this.$router.addRoutes(data);
-                    this.loading = true;
-                    this.$router.push('Home');
+                    this.$router.push({path: 'Home'});
+                    this.loading = false;
                 });
             });
         }
