@@ -1,24 +1,26 @@
 <template>
-    <section style="display: flex;height: 700px">
-        <div style="flex: 1">
+    <section style="display: flex">
+        <div style="flex: 1;margin: 12px 5px;height: 100%">
             <el-input
                 placeholder="输入关键字进行过滤"
                 size="large"
                 v-model="filterText"
-                style="margin: 12px">
+                style="width: 98%;margin-left: 12px;margin-bottom: 10px;">
             </el-input>
-            <el-tree
-                :data="treeData"
-                @node-click="handleNodeClick"
-                :filter-node-method="filterNode"
-                :highlight-current="true"
-                ref="tree"
-                style="margin: 0 12px"
-                @node-expand="showChildren">
-            </el-tree>
+            <el-scrollbar>
+                <el-tree
+                    :data="treeData"
+                    @node-click="handleNodeClick"
+                    :filter-node-method="filterNode"
+                    :highlight-current="true"
+                    ref="tree"
+                    class="tree-sl"
+                    @node-expand="showChildren">
+                </el-tree>
+            </el-scrollbar>
         </div>
-        <div style="flex: 3;margin: 12px 5px">
-            <object classid="clsid:9ECD2A40-1222-432E-A4D4-154C7CAB9DE3" id="spv"  width="95%" height="100%;"></object>
+        <div style="flex: 3;margin: 12px 5px;height: calc(100vh - 75px)">
+            <object classid="clsid:9ECD2A40-1222-432E-A4D4-154C7CAB9DE3" id="spv" width="100%" height="100%"></object>
         </div>
     </section>
 </template>
@@ -30,7 +32,8 @@
         data() {
             return {
                 treeData: [],
-                filterText: ''
+                filterText: '',
+                spv: {}
             }
         },
         watch: {
@@ -87,9 +90,9 @@
                             });
                         }
                         this.$store.commit('getProjectName', '');
-                        let spv = document.getElementById('spv');
-                        this.initSpvx(spv);
-                        this.setLocalParam(spv);
+                        this.spv = document.getElementById('spv');
+                        this.initSpvx(this.spv);
+                        this.setLocalParam(this.spv);
                     }
                 )
             },
@@ -100,24 +103,11 @@
                 const opUserUuid = 'c26a811c141a11e79aeeb32ef95273f2';
                 // const netZoneUuid = 'f5816cf43fcc41d880d9f636fa8bc443';
                 const netZoneUuid = '5b994421aced4e2d9a76179e8cc70734';
-                let self = this;
-                $.ajax({
-                    url: IP_PORT + "/openapi/service/vss/preview/getPreviewParamByCameraUuid?token=" + self.getSinglePreviewToken(time, cameraUuid),
-                    type: "POST",
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify({
-                        appkey: APP_KEY,
-                        time: time,
-                        pageNo: 1,
-                        pageSize: 10,
-                        opUserUuid: opUserUuid,
-                        cameraUuid: cameraUuid,
-                        netZoneUuid: netZoneUuid
-                    }),
-                    success: function (xml) {
-                        self.startPreview(xml.data);
-                    }
-                })
+                this.$http('POST', IP_PORT + "/openapi/service/vss/preview/getPreviewParamByCameraUuid?token=" + this.getSinglePreviewToken(time, cameraUuid),
+                    {appkey: APP_KEY, time: time, pageNo: 1, pageSize: 10, opUserUuid: opUserUuid, cameraUuid: cameraUuid, netZoneUuid: netZoneUuid}).then(
+                        data => {
+                            this.startPreview(data.data);
+                        })
             },
             initSpvx(spv) {
                 let ret = spv.MPV_Init(1);
@@ -142,15 +132,14 @@
                 }
             },
             startPreview(xml) {
-                let spv = document.getElementById('spv');
-                spv.MPV_SetPlayWndCount(1);
-                spv.MPV_StartPreview(xml);
+                this.spv.MPV_SetPlayWndCount(4);
+                this.spv.MPV_StartPreview(xml);
             },
             getSinglePreviewToken(time, uuid) {
                 const APP_KEY = "a592d676";
                 const SECRET = "69681c3587194a50a2b11f1335ad6f41";
                 const opUserUuid = 'c26a811c141a11e79aeeb32ef95273f2';
-                const netZoneUuid = 'f5816cf43fcc41d880d9f636fa8bc443';
+                const netZoneUuid = '5b994421aced4e2d9a76179e8cc70734';
                 let uri = "/openapi/service/vss/preview/getPreviewParamByCameraUuid";
                 let strParam = {
                     appkey: APP_KEY,
@@ -170,10 +159,16 @@
         },
         mounted() {
             this.loadTreeData();
+        },
+        deactivated() {
+            this.spv.StopAllPreview();
         }
     }
 </script>
 
 <style scoped>
-
+.tree-sl {
+    margin: 0 12px;
+    height: calc(100vh - 120px);
+}
 </style>

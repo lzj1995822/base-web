@@ -1,5 +1,5 @@
 <template>
-    <section>
+    <section style="padding: 30px;">
         <el-select class="selectname" v-model="projectId" filterable placeholder="请选择" @change="loadData">
             <el-option
                 v-for="item in options"
@@ -10,8 +10,8 @@
         </el-select>
         <transition name="fade">
             <div id="pmBox" v-show="projectId != ''">
-            <div id="pmBox_left"></div>
-            <div id="pmBox_right">
+            <div id="pmBox_left" :style="leftStyle"></div>
+            <div id="pmBox_right" :style="rightStyle">
                 <el-card class="card" style="background-color: aquamarine">
                     <div>
                         <span>PM2.5</span>
@@ -118,6 +118,22 @@
                 windDirection: '',
                 windPower: '',
                 windSpeed: '',
+            }
+        },
+        computed: {
+            leftStyle() {
+                let ra = window.screen.width/1920;
+                return {
+                    width: `${900 * ra}px`,
+                    height: `${600 * ra}px`,
+                }
+            },
+            rightStyle() {
+                let ra = window.screen.width/1920;
+                return {
+                    width: `${600 * ra}px`,
+                    height: `${500 * ra}px`,
+                }
             }
         },
         methods: {
@@ -234,9 +250,6 @@
 <style scoped>
     .selectname {
         float: right;
-        margin-top: 2%;
-        margin-right: 3%;
-        margin-bottom: 20px;
         clear: both;
     }
     #pmBox {
@@ -244,7 +257,7 @@
         padding: 0;
         display: inline-block;
         margin-top: 30px;
-        width: 95%;
+        width: 100%;
         min-height: 400px;
         display: inline-block;
 
@@ -252,27 +265,20 @@
     #pmBox_left {
         margin: 0;
         padding: 0;
-        width: 40rem;
-        height: 400px;
         background-size: cover;
         display: inline-block;
-    }
-    #pmBox_left div{
-        width: 600px;
-        height: 400px;
     }
     #pmBox_right {
         margin: 0;
         padding: 0;
-        width: 38%;
-        height: 400px;
         display: inline-block;
+        vertical-align: top;
     }
     .card {
-        width: 25%;
+        width: 30%;
         height: 20%;
         float: left;
-        margin: 2% 8% 2% 12%;
+        margin: 2% 0 2% 20%;
     }
     /* 开始过渡阶段,动画出去阶段 */
     .fade-enter-active,.fade-leave-active{
